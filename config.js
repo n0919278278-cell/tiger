@@ -1,7 +1,7 @@
 /* 幻湮宮｜虎爺賜號 — 設定檔（發佈前只需改這裡） */
 window.TIGER_CONFIG = {
   // Google Apps Script 網頁應用程式網址（/exec 結尾）。留空 = 不送出名單，頁面照常算號。
-  ENDPOINT: '',
+  ENDPOINT: 'https://script.google.com/macros/s/AKfycbz3W3VirPgn9d8YGVa31Kzfox8TUXrS0_VGBQoOmfP_3i_IWvs9YAcLjvGi20A9MDO6Dg/exec',
   // 社群連結
   IG_URL: 'https://www.instagram.com/aura_lightning_zaomu/',
   FB_URL: 'https://www.facebook.com/1418130474718466',
