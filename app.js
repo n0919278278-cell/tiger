@@ -3,6 +3,8 @@
   var C = window.TIGER_CONFIG || {}, T = window.TigerCalc(window), DATA = null;
   var f = document.getElementById('f'), $ = function (id) { return document.getElementById(id); };
   var nowT = T.taipeiNow();
+  var unlockedDate = '';
+  var S2T = { '纳': '納', '宝': '寶', '运': '運', '开': '開', '鸿': '鴻', '寿': '壽', '贵': '貴', '兴': '興', '气': '氣', '发': '發', '临': '臨', '庆': '慶', '赐': '賜', '禄': '祿', '来': '來', '丰': '豐', '乐': '樂', '泽': '澤', '顺': '順', '万': '萬', '余': '餘', '满': '滿', '达': '達', '财': '財', '进': '進' };
   function opts(sel, from, to, fmt, sel0) {
     for (var i = from; from <= to ? i <= to : i >= to; from <= to ? i++ : i--) {
       var o = document.createElement('option'); o.value = i; o.textContent = fmt(i); if (i === sel0) o.selected = true; sel.appendChild(o);
@@ -20,15 +22,75 @@
   opts(f.bmi, 0, 59, function (i) { return p2(i) + ' 分'; });
   f.unknownTime.onchange = function () { f.bh.disabled = f.bmi.disabled = this.checked; };
   document.querySelector('.contact-note').textContent = C.CONTACT_NOTE || '私訊幻湮宮';
-  ['ig', 'fb', 'yt'].forEach(function (k) { var a = $(k), u = C[k.toUpperCase() + '_URL']; if (u) a.href = u; else a.hidden = true; });
+  ['ig', 'fb', 'yt'].forEach(function (k) {
+    var u = C[k.toUpperCase() + '_URL'];
+    [k, 'gate-' + k].forEach(function (id) {
+      var a = $(id);
+      if (!a) return;
+      if (u) a.href = u; else a.hidden = true;
+    });
+  });
 
-  var dataReady = fetch('data.json', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) { DATA = d; return d; });
+  function normPw(s) {
+    return String(s || '').replace(/\s+/g, '').split('').map(function (c) { return S2T[c] || c; }).join('');
+  }
+  function sha256hex(s) {
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)).then(function (buf) {
+      return Array.from(new Uint8Array(buf)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+    });
+  }
+  function lsKey(d) { return 'tiger_passphrase_ok:' + d; }
+  function pwSpec() { return DATA && DATA.passphrase && DATA.passphrase.date && DATA.passphrase.hash ? DATA.passphrase : null; }
+  function showForm() { $('gate').hidden = true; f.hidden = false; }
+  function showGate() { $('gate').hidden = false; f.hidden = true; }
+  function gateMsg(msg) { $('gateErr').textContent = msg || ''; }
+
+  var dataReady = fetch('data.json', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) {
+    DATA = d;
+    var sp = pwSpec();
+    if (!sp) { showForm(); return d; }
+    if (localStorage.getItem(lsKey(sp.date)) === '1') { unlockedDate = sp.date; showForm(); }
+    else showGate();
+    return d;
+  }).catch(function (e) { console.error(e); showForm(); throw e; });
+
+  function rejectGate() {
+    gateMsg('請到幻湮宮今日影片，聽虎爺說出今日暗號');
+    var help = $('gateHelp');
+    if (help) help.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+  function acceptGate(date) {
+    unlockedDate = date;
+    try { localStorage.setItem(lsKey(date), '1'); } catch (e) {}
+    gateMsg('');
+    showForm();
+    f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  $('gateGo').addEventListener('click', function () {
+    var sp = pwSpec(), raw = $('passphrase').value, word = normPw(raw);
+    gateMsg('');
+    if (!sp) { showForm(); return; }
+    if (!word) { rejectGate(); return; }
+    var btn = $('gateGo'); btn.disabled = true;
+    var msg = (sp.pepper || 'hyy539-passphrase-v1') + '|' + sp.date + '|' + word;
+    sha256hex(msg).then(function (h) {
+      if (h === String(sp.hash).toLowerCase()) acceptGate(sp.date);
+      else rejectGate();
+    }).catch(function () { rejectGate(); })
+      .then(function () { btn.disabled = false; });
+  });
+  $('passphrase').addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter') { ev.preventDefault(); $('gateGo').click(); }
+  });
 
   function err(msg) { $('err').textContent = msg; if (msg) $('err').scrollIntoView({ block: 'center', behavior: 'smooth' }); }
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return '&#' + c.charCodeAt(0) + ';'; }); }
 
   f.addEventListener('submit', function (ev) {
     ev.preventDefault(); err('');
+    var sp = pwSpec();
+    if (sp && unlockedDate !== sp.date) { showGate(); rejectGate(); return; }
     var name = f.nick.value.trim(), email = f.email.value.trim(), line = f.line.value.trim();
     var g = (f.querySelector('input[name=gender]:checked') || {}).value, unk = f.unknownTime.checked;
     if (!name) return err('請填寫暱稱');
@@ -94,7 +156,8 @@
       birth_time: u.birth.timeKnown ? (u.birth.h < 10 ? '0' : '') + u.birth.h + ':' + (u.birth.mi < 10 ? '0' : '') + u.birth.mi : '不確定',
       gender: u.birth.gender, bazi: [r.bazi.pillars.year, r.bazi.pillars.month, r.bazi.pillars.day, r.bazi.pillars.hour || '--'].join(' '),
       day_master: r.an.dayMaster + r.an.dmEl, xi_yong: r.an.xi.e + r.an.yong.e, numbers: r.numbers.map(p2).join(','),
-      draw_date: r.draw.iso, shichen: r.shichenBranch, source: location.search.slice(1, 120), ua: navigator.userAgent.slice(0, 160)
+      draw_date: r.draw.iso, shichen: r.shichenBranch, source: location.search.slice(1, 120), ua: navigator.userAgent.slice(0, 160),
+      passphrase_ok: unlockedDate ? 'Y' : ''
     };
     st.textContent = '正在為你登記虎爺名冊…';
     var ctrl = window.AbortController ? new AbortController() : null, to = setTimeout(function () { ctrl && ctrl.abort(); }, 10000);

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# 重建 data.json 並推送到 GitHub Pages repo（每日開獎後由例行流程呼叫）
+# 重建 data.json（含下一期暗號雜湊，不含明文）並推送到 GitHub Pages repo（每日開獎後由例行流程呼叫）
+# 需本機有 .secret_salt（已 gitignore）。
 # 方法：本機 git + GitHub CLI 的登入（gh auth login 一次，由使用者本人完成；腳本不產生任何權杖）。
 # 若 gh 未登入，腳本只重建 data.json 並以代碼 3 結束，讓呼叫端改走其他方式（例如 Cursor 雲端代理推送）。
 set -euo pipefail

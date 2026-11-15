@@ -5,14 +5,21 @@
  */
 var SHEET_NAME = '名單';
 var HEADERS = ['收到時間', '送出時間', '暱稱', 'Email', 'LINE ID', '願收消息', '同意個資', '出生日期', '出生時間', '性別',
-  '八字', '日主', '喜用', '號碼', '適用期別', '時辰', '來源', '裝置'];
+  '八字', '日主', '喜用', '號碼', '適用期別', '時辰', '來源', '裝置', '暗號通過'];
 var KEYS = ['ts', 'name', 'email', 'line', 'optin', 'consent', 'birth_date', 'birth_time', 'gender',
-  'bazi', 'day_master', 'xi_yong', 'numbers', 'draw_date', 'shichen', 'source', 'ua'];
+  'bazi', 'day_master', 'xi_yong', 'numbers', 'draw_date', 'shichen', 'source', 'ua', 'passphrase_ok'];
 
 function getSheet_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sh = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
   if (sh.getLastRow() === 0) { sh.appendRow(HEADERS); sh.setFrozenRows(1); }
+  else {
+    var last = Math.max(sh.getLastColumn(), HEADERS.length);
+    var existing = sh.getRange(1, 1, 1, last).getValues()[0];
+    for (var i = 0; i < HEADERS.length; i++) {
+      if (existing[i] !== HEADERS[i]) sh.getRange(1, i + 1).setValue(HEADERS[i]);
+    }
+  }
   return sh;
 }
 

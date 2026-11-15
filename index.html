@@ -25,7 +25,23 @@
 
   <div class="warn" role="note">僅供娛樂參考，不保證中獎。<br>未滿18歲不得購買彩券。</div>
 
-  <form id="f" class="card" novalidate>
+  <section id="gate" class="card gate" hidden>
+    <h2>今日暗號</h2>
+    <p class="gate-lead">請輸入今日影片中，虎爺親口說出的兩個字暗號。</p>
+    <label>今日暗號<input id="passphrase" name="passphrase" maxlength="8" placeholder="兩個字" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+    <div id="gateErr" class="err" role="alert"></div>
+    <button type="button" class="btn" id="gateGo">恭迎虎爺・開啟賜號</button>
+    <div id="gateHelp" class="gate-help">
+      <p>還沒聽到暗號？請到幻湮宮今日影片，聽虎爺說出今日暗號</p>
+      <div class="social">
+        <a id="gate-ig" target="_blank" rel="noopener">Instagram</a>
+        <a id="gate-fb" target="_blank" rel="noopener">Facebook 粉專</a>
+        <a id="gate-yt" target="_blank" rel="noopener">YouTube</a>
+      </div>
+    </div>
+  </section>
+
+  <form id="f" class="card" novalidate hidden>
     <h2>恭迎虎爺・填寫生辰</h2>
     <label>暱稱<input name="nick" maxlength="20" required placeholder="例：阿斌" autocomplete="nickname"></label>
     <div class="lbl">出生日期（國曆）</div>

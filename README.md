@@ -10,7 +10,9 @@
 | tiger.js | 計算核心（排盤、五行、喜用、選號；瀏覽器與 Node 共用） |
 | config.js | **唯一需要改的設定**：名單網址 ENDPOINT、IG/FB/YT 連結 |
 | data.json | 號碼統計，由 `build_data.py` 從 `../draws.csv` 產生 |
-| build_data.py | `python3 build_data.py` 重建 data.json（每日開獎後跑） |
+| build_data.py | `python3 build_data.py` 重建 data.json（每日開獎後跑，含下一期暗號雜湊） |
+| passphrase.py | 依開獎日＋本機鹽決定兩個字暗號；`python3 passphrase.py YYYY-MM-DD` |
+| .secret_salt | 私密鹽（已 gitignore，不可上傳） |
 | vendor/lunar.js | lunar-javascript v1.7.8（MIT，授權檔同目錄） |
 | tiger.jpg / favicon.svg | 虎爺圖（取自 video/assets/tiger_keyart.jpg，480px，約 50KB） |
 | apps_script/Code.gs | Google Apps Script：把名單寫入 Google 試算表 |
@@ -28,6 +30,15 @@
 8. **適用期別**：台北時間週一至週六 20:00 前 → 當天；20:00 後或週日 → 下一個開獎日（跳過週日；若 ≤ data.json 最後開獎日則往後推）。春節停開未處理。
 
 範例 1988/07/15 10:30 男 → 戊辰 己未 辛未 癸巳，日主辛金，土 6 分身強，喜木、用水 → 11/15 酉時送出、11/16 期別：**23、31**。
+
+
+## 每日暗號（簡單版，前端核對）
+開獎後更新的 `data.json` 會帶下一期（最新開獎日的下一個週一至週六）的暗號雜湊，**不含明文**。頁面先問「今日暗號」，對了才進入排盤；輸入會去掉空白，並接受詞庫裡常見的簡體寫法。答對後以 `localStorage` 記住「這一個開獎日」已通過。名單送出時多一個欄位 `passphrase_ok=Y`（不傳送暗號本身）。
+
+- 產生：`python3 passphrase.py 2026-11-16`（只在本機印明文，給影片用）。鹽檔是 `.secret_salt`，備用複本在 Cursor store。
+- 雜湊：`SHA-256(pepper|日期|暗號)`，pepper 公開寫在 data.json 的 `passphrase.pepper`（目前 `hyy539-passphrase-v1`）。
+- 錯或空白時顯示「請到幻湮宮今日影片，聽虎爺說出今日暗號」，並附 IG／YT／FB 連結。
+- **限制（已告知、採簡單版）：** 詞庫約 50 個詞，雜湊在頁面上，懂程式的人仍可窮舉。若以後要擋這個，改由試算表後端核對即可。
 
 ## 本機測試
 ```bash
@@ -53,7 +64,7 @@ NODE_PATH=/tmp/pt/node_modules node tests/browser_check.js   # 截圖到 screens
 5. 把網址放進 ManyChat 自動私訊，以及 IG/FB/YT 簡介。可加 `?src=ig` 之類參數，名單「來源」欄會記錄。
 
 ### 每日更新
-開獎後 `python3 build_data.py` → 把新的 data.json 上傳到 repo（可併入每期自動流程）。
+開獎後跑 `bash publish_data.sh`（或先 `python3 build_data.py` 再推送）：會重建號碼統計，並寫入下一期暗號雜湊。本機必須有 `.secret_salt`。
 
 ## 合規
 - 頁面頂部、結果區、頁尾都顯示「僅供娛樂參考，不保證中獎。未滿18歲不得購買彩券。」
