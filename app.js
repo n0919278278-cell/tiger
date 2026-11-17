@@ -105,7 +105,7 @@
     dataReady.then(function (data) {
       var r = T.compute(birth, data);
       render(r, name);
-      send(r, { name: name, email: email, line: line, optin: f.optin.checked, birth: birth, hp: f.website.value });
+      send(r, { name: name, email: email, line: line, optin: f.optin.checked, birth: birth, hp: (f.hp_zx91 && f.hp_zx91.value) || '' });
     }).catch(function (e) { console.error(e); err('排盤資料載入失敗，請重新整理頁面再試一次'); })
       .then(function () { btn.disabled = false; btn.textContent = '開始排盤・恭迎虎爺'; });
   });
@@ -146,10 +146,11 @@
     $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  var sendTimer = null;
   function send(r, u) {
     var st = $('sendStatus');
-    if (u.hp) { st.textContent = ''; return; } // 機器人
-    if (!C.ENDPOINT) { st.textContent = ''; return; }
+    if (u.hp) { st.className = 'send'; st.textContent = ''; return; } // 機器人
+    if (!C.ENDPOINT) { st.className = 'send'; st.textContent = ''; return; }
     var payload = {
       ts: r.now.iso, name: u.name, email: u.email, line: u.line, optin: u.optin ? 'Y' : 'N', consent: 'Y',
       birth_date: u.birth.y + '-' + (u.birth.m < 10 ? '0' : '') + u.birth.m + '-' + (u.birth.d < 10 ? '0' : '') + u.birth.d,
@@ -159,13 +160,49 @@
       draw_date: r.draw.iso, shichen: r.shichenBranch, source: location.search.slice(1, 120), ua: navigator.userAgent.slice(0, 160),
       passphrase_ok: unlockedDate ? 'Y' : ''
     };
+    function showOk() {
+      st.className = 'send ok';
+      st.textContent = '已登記虎爺名冊 ✔';
+    }
+    function showFail() {
+      st.className = 'send fail';
+      st.textContent = '';
+      var p = document.createElement('p');
+      p.style.margin = '0 0 8px';
+      p.appendChild(document.createTextNode('名冊登記失敗，請再試一次。若仍不行，請'));
+      var a = document.createElement('a');
+      a.href = C.FB_URL || 'https://www.facebook.com/1418130474718466';
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = '私訊 Facebook 粉專「幻湮宮」';
+      p.appendChild(a);
+      p.appendChild(document.createTextNode('，我們會幫你補登記。號碼仍可先記下。'));
+      st.appendChild(p);
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn ghost';
+      btn.id = 'sendRetry';
+      btn.textContent = '再試一次';
+      btn.onclick = function () { send(r, u); };
+      st.appendChild(btn);
+    }
+    st.className = 'send';
     st.textContent = '正在為你登記虎爺名冊…';
-    var ctrl = window.AbortController ? new AbortController() : null, to = setTimeout(function () { ctrl && ctrl.abort(); }, 10000);
-    // text/plain + no-cors：Apps Script 不需 CORS 預檢；回應不可讀，送出即視為成功
-    fetch(C.ENDPOINT, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), signal: ctrl && ctrl.signal })
-      .then(function () { st.textContent = '已登記虎爺名冊 ✔'; })
-      .catch(function () { st.textContent = '（名冊登記暫時失敗，不影響你的號碼）'; })
-      .then(function () { clearTimeout(to); });
+    if (sendTimer) { clearTimeout(sendTimer); sendTimer = null; }
+    var ctrl = window.AbortController ? new AbortController() : null;
+    sendTimer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 20000);
+    // text/plain + 一般 fetch（非 no-cors）：Apps Script 會 302 到可讀 JSON；只在 {"ok":true} 時顯示已登記
+    fetch(C.ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), signal: ctrl && ctrl.signal, redirect: 'follow' })
+      .then(function (res) {
+        return res.text().then(function (t) {
+          var data = null;
+          try { data = JSON.parse(t); } catch (e) {}
+          if (res.ok && data && data.ok === true) showOk();
+          else showFail();
+        });
+      })
+      .catch(function () { showFail(); })
+      .then(function () { if (sendTimer) { clearTimeout(sendTimer); sendTimer = null; } });
   }
 
   $('again').onclick = function () { $('result').hidden = true; f.hidden = false; f.scrollIntoView({ behavior: 'smooth' }); };

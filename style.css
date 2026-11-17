@@ -72,3 +72,10 @@ select:disabled{opacity:.4}
 .gate-help p{margin:0 0 8px}
 .gate-help .social{margin-top:8px}
 .gate .err{margin-top:8px;font-size:15px}
+
+.gate-hint{margin:8px 0 0;color:var(--mute);font-size:14px;letter-spacing:0;line-height:1.6;text-align:center}
+.gate-hint + .social{margin:8px 0 12px}
+.send a{color:var(--gold2)}
+.send.ok{color:#b8e0b0}
+.send.fail{color:#ff9d8a}
+.send .btn{margin-top:10px;font-size:15px;letter-spacing:.08em}
