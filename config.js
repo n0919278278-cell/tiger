@@ -7,5 +7,5 @@ window.TIGER_CONFIG = {
   FB_URL: 'https://www.facebook.com/1418130474718466',
   YT_URL: 'https://www.youtube.com/@weipin-8278',
   // 刪除個資／聯絡用（會顯示在個資告知中）
-  CONTACT_NOTE: '私訊 IG @aura_lightning_zaomu 或 FB 粉專「幻湮宮」'
+  CONTACT_NOTE: '私訊 IG @aura_lightning_zaomu 或 FB 粉專「財神幻湮宮-今彩539聚地」'
 };

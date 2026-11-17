@@ -21,7 +21,7 @@
   opts(f.bh, 0, 23, function (i) { return p2(i) + ' 時'; });
   opts(f.bmi, 0, 59, function (i) { return p2(i) + ' 分'; });
   f.unknownTime.onchange = function () { f.bh.disabled = f.bmi.disabled = this.checked; };
-  document.querySelector('.contact-note').textContent = C.CONTACT_NOTE || '私訊幻湮宮';
+  document.querySelector('.contact-note').textContent = C.CONTACT_NOTE || '私訊財神幻湮宮-今彩539聚地';
   ['ig', 'fb', 'yt'].forEach(function (k) {
     var u = C[k.toUpperCase() + '_URL'];
     [k, 'gate-' + k].forEach(function (id) {
@@ -174,7 +174,7 @@
       a.href = C.FB_URL || 'https://www.facebook.com/1418130474718466';
       a.target = '_blank';
       a.rel = 'noopener';
-      a.textContent = '私訊 Facebook 粉專「幻湮宮」';
+      a.textContent = '私訊 Facebook 粉專「財神幻湮宮-今彩539聚地」';
       p.appendChild(a);
       p.appendChild(document.createTextNode('，我們會幫你補登記。號碼仍可先記下。'));
       st.appendChild(p);
