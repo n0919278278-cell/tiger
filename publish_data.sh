@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
-# 重建 data.json（含下一期暗號雜湊，不含明文）並推送到 GitHub Pages repo（每日開獎後由例行流程呼叫）
-# 需本機有 .secret_salt（已 gitignore）。
-# 方法：本機 git + GitHub CLI 的登入（gh auth login 一次，由使用者本人完成；腳本不產生任何權杖）。
-# 若 gh 未登入，腳本只重建 data.json 並以代碼 3 結束，讓呼叫端改走其他方式（例如 Cursor 雲端代理推送）。
+# 舊版：重建 data.json（含下一期暗號雜湊，不含明文）並推送到 GitHub Pages。
+# 2026-11 起網站已改為「財神幻湮宮」服務門面，首頁不再使用選號資料。
+# 預設直接結束（代碼 0），避免每日例行把舊統計推上官網。
+# 若確實要重建舊 data.json，請明確設定 TIGER_PUBLISH_LEGACY=1。
+# 舊流程仍需本機 .secret_salt（已 gitignore），並用 GitHub CLI 登入（腳本不產生權杖）。
 set -euo pipefail
+if [ "${TIGER_PUBLISH_LEGACY:-}" != "1" ]; then
+  echo "本站已轉型為財神幻湮宮官網門面，略過選號資料發布。若要重建舊 data.json，請設 TIGER_PUBLISH_LEGACY=1。"
+  exit 0
+fi
 DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO="${TIGER_REPO:-n0919278278-cell/tiger}"
 BRANCH="${TIGER_BRANCH:-main}"

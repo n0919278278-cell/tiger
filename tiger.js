@@ -1,6 +1,5 @@
-/* 幻湮宮｜虎爺賜號 — 計算核心（瀏覽器與 Node 共用）
- * 依賴 lunar-javascript（vendor/lunar.js，MIT）。
- * 規則說明見 README.md「號碼怎麼算」。 */
+/* 舊版計算核心，首頁已不再載入。官網門面見 index.html、booking.js、app.js。
+ * 依賴 lunar-javascript（vendor/lunar.js，MIT）。保留給 tests/check_bazi.js。 */
 (function (root, factory) {
   if (typeof module !== 'undefined' && module.exports) module.exports = factory;
   else root.TigerCalc = factory;

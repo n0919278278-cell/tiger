@@ -3,106 +3,244 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>幻湮宮｜虎爺賜號</title>
-<meta name="description" content="填寫生辰，虎爺依你的八字喜用五行，賜下專屬二合號碼。僅供娛樂參考。">
-<meta property="og:title" content="幻湮宮｜虎爺賜號">
-<meta property="og:description" content="填寫生辰，虎爺依你的八字喜用五行賜下專屬二合號碼（僅供娛樂參考）">
-<meta property="og:image" content="tiger.jpg">
-<meta name="theme-color" content="#0b1f17">
+<title>財神幻湮宮｜遠端解事・開運香粉</title>
+<meta name="description" content="財神幻湮宮官方服務網站。此地 539 推選僅供娛樂參考。本宮正式提供遠端解事、清理淨化與親製開運香粉結緣服務。">
+<meta property="og:title" content="財神幻湮宮｜遠端解事・開運香粉">
+<meta property="og:description" content="此地 539 推選僅供娛樂參考。本宮正式提供遠端解事、清理淨化與親製開運香粉結緣。">
+<meta property="og:image" content="assets/incense_ingredients.jpg">
+<meta name="theme-color" content="#6f1212">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="wrap">
-  <header class="hero">
-    <img src="tiger.jpg" alt="虎爺" class="hero-img" width="480" height="533">
-    <div class="hero-text">
-      <div class="brand">幻湮宮</div>
-      <h1>虎爺賜號</h1>
-      <p class="sub">填入生辰，虎爺依你的八字喜用五行<br>賜下「專屬二合號碼」</p>
-    </div>
+  <header class="plaque">
+    <p class="eyebrow">官方服務網站</p>
+    <h1>財神幻湮宮</h1>
+    <p class="plaque-sub">今彩539聚地</p>
   </header>
 
-  <div class="warn" role="note">僅供娛樂參考，不保證中獎。<br>未滿18歲不得購買彩券。</div>
+  <section class="notice-banner" aria-label="本宮服務說明">
+    <p>此地 539 推選僅供娛樂參考。<br>本宮正式提供遠端解事、清理淨化與親製開運香粉結緣服務。</p>
+  </section>
+  <p class="stopped">原先的賜號登記已停止。請用本頁預約遠端解事，或結緣開運香粉。</p>
 
-  <section id="gate" class="card gate" hidden>
-    <h2>今日暗號</h2>
-    <p class="gate-lead">請輸入今日影片中，虎爺親口說出的兩個字暗號。</p>
-    <label>今日暗號<input id="passphrase" name="passphrase" maxlength="8" placeholder="兩個字" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
-    <p class="gate-hint">暗號在今日的財神賜號影片片尾，虎爺會說兩個字</p>
-    <div class="social">
-      <a id="gate-ig" target="_blank" rel="noopener">Instagram</a>
-      <a id="gate-fb" target="_blank" rel="noopener">粉專「財神幻湮宮-今彩539聚地」</a>
-      <a id="gate-yt" target="_blank" rel="noopener">YouTube</a>
+  <nav class="jump" aria-label="頁面導覽">
+    <a href="#remote">遠端解事</a>
+    <a href="#personal">專屬加持</a>
+    <a href="#incense">開運香粉</a>
+    <a href="#book">預約登記</a>
+  </nav>
+
+  <section id="remote" class="block">
+    <h2>一、非專屬遠端解事服務</h2>
+    <p class="section-note">當日可處理完畢，處理完後由本宮私訊通知，請留意近半年內自身感受變化。</p>
+    <label class="svc">
+      <input class="svc-input" type="checkbox" data-id="base" data-price="300">
+      <span class="svc-main">
+        <span class="svc-name">基礎清理淨化</span>
+        <span class="must">任何專項開始前必備項目，不可繞過</span>
+      </span>
+      <span class="svc-price">NT$300</span>
+    </label>
+    <label class="svc">
+      <input class="svc-input" type="checkbox" data-id="group" data-price="600">
+      <span class="svc-main">
+        <span class="svc-name">團體祈福</span>
+        <span class="svc-desc">運勢穩定上升，成效較慢</span>
+      </span>
+      <span class="svc-price">NT$600</span>
+    </label>
+    <label class="svc">
+      <input class="svc-input" type="checkbox" data-id="deep" data-price="1200">
+      <span class="svc-main"><span class="svc-name">深層強力清理淨化</span></span>
+      <span class="svc-price">NT$1,200</span>
+    </label>
+    <label class="svc">
+      <input class="svc-input" type="checkbox" data-id="boost" data-price="2400">
+      <span class="svc-main"><span class="svc-name">強力補運</span></span>
+      <span class="svc-price">NT$2,400</span>
+    </label>
+    <label class="svc">
+      <input class="svc-input" type="checkbox" data-id="wealth" data-price="3600">
+      <span class="svc-main"><span class="svc-name">五路財神補財庫</span></span>
+      <span class="svc-price">NT$3,600</span>
+    </label>
+  </section>
+
+  <section id="personal" class="block">
+    <h2>二、專屬個人專項快速見效</h2>
+    <p class="section-note">涵蓋事業、感情、催財、改運。法師持咒秘儀加持，處理完成後私訊通知，請留意近一個月內的狀況變化。</p>
+    <label class="svc">
+      <input class="svc-input" type="checkbox" data-id="d3" data-price="12000">
+      <span class="svc-main">
+        <span class="svc-name">三日持咒秘儀加持</span>
+        <span class="svc-desc">事業、感情、催財、改運</span>
+      </span>
+      <span class="svc-price">NT$12,000</span>
+    </label>
+    <label class="svc">
+      <input class="svc-input" type="checkbox" data-id="d7" data-price="36000">
+      <span class="svc-main">
+        <span class="svc-name">七日持咒秘儀加持</span>
+        <span class="svc-desc">事業、感情、催財、改運</span>
+      </span>
+      <span class="svc-price">NT$36,000</span>
+    </label>
+  </section>
+
+  <section id="incense" class="block">
+    <h2>三、宮主親製・隨身聞香「持咒開運香粉」</h2>
+    <p class="price-line">售價 <b>NT$888</b>／包（約 30g，香包或袋裝，<b>不含陶香球</b>）</p>
+    <p>7-11 店到店運費 <b>NT$60</b>（有選購才計一次，不是每包都加）。首批限量 <b>100</b> 包。</p>
+    <p>成分：五穀、五藥、五香、綠褀楠沉香、龍血、宮主自調密料、烏木粉、鹽、多種礦石混碎石。</p>
+    <p>用法：隨身攜帶聞香定心、祈福納財。此為祈福心意與香品，非醫療用品，亦不保證任何結果。</p>
+    <div class="photos">
+      <figure>
+        <img src="assets/incense_ingredients.jpg" alt="宮主親製開運香粉原料實拍：陶碗中混合穀物、藥材、沉香碎料與各色礦石" width="1400" height="1052">
+        <figcaption>香粉原料實拍。可見穀物、藥材碎塊、沉香與綠色、茶色礦石。</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/incense_censer.jpg" alt="陶香球聞香示意，商品為香粉包或袋裝，不含圖中陶香球" width="1400" height="1052">
+        <figcaption>聞香示意。圖中陶香球只供參考，本商品不含陶香球。</figcaption>
+      </figure>
     </div>
-    <div id="gateErr" class="err" role="alert"></div>
-    <button type="button" class="btn" id="gateGo">恭迎虎爺・開啟賜號</button>
-    <div id="gateHelp" class="gate-help">
-      <p>還沒聽到暗號？請先打開上方連結，看完今日財神賜號影片</p>
+    <div class="qty-row">
+      <span id="qtyLabel">香粉數量</span>
+      <div class="stepper" role="group" aria-labelledby="qtyLabel">
+        <button type="button" id="qtyMinus" aria-label="減少一包">－</button>
+        <output id="incenseQty" for="qtyMinus qtyPlus">0</output>
+        <button type="button" id="qtyPlus" aria-label="增加一包">＋</button>
+      </div>
+      <span class="qty-hint">單次最多 10 包</span>
     </div>
   </section>
 
-  <form id="f" class="card" novalidate hidden>
-    <h2>恭迎虎爺・填寫生辰</h2>
-    <label>暱稱<input name="nick" maxlength="20" required placeholder="例：阿斌" autocomplete="nickname"></label>
-    <div class="lbl">出生日期（國曆）</div>
-    <div class="row sel3">
-      <select name="by" required aria-label="出生年"><option value="">年</option></select>
-      <select name="bm" required aria-label="出生月"><option value="">月</option></select>
-      <select name="bd" required aria-label="出生日"><option value="">日</option></select>
+  <form id="f" class="block" novalidate>
+    <div id="preBox" class="alert" hidden>
+      <p id="preLead"></p>
+      <label class="chk"><input type="checkbox" id="preAddon"> <span>加購必備前置：基礎清理淨化 NT$300</span></label>
+      <label class="chk"><input type="checkbox" id="preDone"> <span>我近期已在本宮完成過基礎清理淨化</span></label>
+      <p id="preState" class="pre-state"></p>
     </div>
-    <div class="lbl">出生時間</div>
-    <div class="row sel3">
-      <select name="bh" aria-label="出生時"><option value="">時</option></select>
-      <select name="bmi" aria-label="出生分"><option value="">分</option></select>
-      <label class="chk inline"><input type="checkbox" name="unknownTime"> 不確定時辰</label>
-    </div>
-    <fieldset class="seg"><legend>性別</legend>
-      <label><input type="radio" name="gender" value="男" required> 男</label>
-      <label><input type="radio" name="gender" value="女"> 女</label>
-    </fieldset>
-    <div class="hint">聯絡方式（Email 與 LINE ID 至少填一項）</div>
-    <label>Email<input name="email" type="email" maxlength="80" placeholder="name@example.com" autocomplete="email" inputmode="email"></label>
-    <label>LINE ID<input name="line" maxlength="40" placeholder="你的 LINE ID" autocapitalize="off"></label>
-    <input name="hp_zx91" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
 
-    <details class="notice" open>
-      <summary>個人資料蒐集告知</summary>
-      <p>依《個人資料保護法》告知：幻湮宮蒐集你的暱稱、出生資料、性別、Email／LINE ID 與賜號結果，<b>目的</b>為提供本次號碼及後續幻湮宮消息（行銷訊息須另行勾選同意）。資料僅由幻湮宮於提供服務期間保存與利用，<b>不提供予第三方</b>。你可隨時請求查詢、更正、停止利用或<b>刪除</b>，請<span class="contact-note"></span>。未提供聯絡方式將無法送出。</p>
+    <h2 id="book">填寫預約資料</h2>
+    <p class="section-note">字體已放大。標示必填的欄位請務必填寫。本頁不收集信用卡號。</p>
+
+    <label>姓名或稱呼（必填）
+      <input name="name" maxlength="30" autocomplete="name" placeholder="怎麼稱呼您都可以">
+    </label>
+
+    <div class="lbl">出生年月日（必填，國曆／陽曆）</div>
+    <div class="row sel3">
+      <select name="by" aria-label="出生年"><option value="">請選年</option></select>
+      <select name="bm" aria-label="出生月"><option value="">請選月</option></select>
+      <select name="bd" aria-label="出生日"><option value="">請選日</option></select>
+    </div>
+
+    <label>出生時辰（必填）
+      <select name="shichen" aria-label="出生時辰"><option value="">請選時辰</option></select>
+    </label>
+    <label class="chk"><input type="checkbox" name="unknownTime"> <span>不確定時辰</span></label>
+
+    <fieldset class="seg">
+      <legend>性別（必填）</legend>
+      <label><input type="radio" name="gender" value="男"> 男</label>
+      <label><input type="radio" name="gender" value="女"> 女</label>
+      <label><input type="radio" name="gender" value="其他"> 其他</label>
+    </fieldset>
+
+    <label>居住地址（必填，遠端定位與祈福用）
+      <textarea name="address" rows="3" maxlength="100" autocomplete="street-address" placeholder="例：台北市大安區復興南路一段1號3樓"></textarea>
+    </label>
+
+    <p class="hint">聯絡方式：手機、LINE ID、Email 請至少填一項。</p>
+    <label>手機
+      <input name="phone" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" placeholder="例：0912345678">
+    </label>
+    <label>LINE ID
+      <input name="line" maxlength="40" autocapitalize="off" placeholder="您的 LINE ID" autocomplete="off">
+    </label>
+    <label>Email
+      <input name="email" type="email" maxlength="80" inputmode="email" autocomplete="email" placeholder="name@example.com">
+    </label>
+
+    <div id="storeBlock" hidden>
+      <p class="hint">有選購香粉才需要填，方便 7-11 店到店寄送。</p>
+      <label>7-11 取貨門市名稱（必填）
+        <input name="store_name" maxlength="24" placeholder="例：松山門市" autocomplete="off">
+      </label>
+      <label>7-11 店號（必填）
+        <input name="store_code" inputmode="numeric" maxlength="8" placeholder="例：123456" autocomplete="off">
+      </label>
+    </div>
+
+    <label>想祈福或改善的事項（選填）
+      <textarea name="note" rows="3" maxlength="120" placeholder="例：希望事業順利、家中平安。請勿填寫信用卡號。"></textarea>
+    </label>
+
+    <div class="hp" aria-hidden="true">
+      <label>請勿填寫<input name="hp_zx91" tabindex="-1" autocomplete="off"></label>
+    </div>
+
+    <details class="privacy" open>
+      <summary>個資與服務告知</summary>
+      <p>依《個人資料保護法》告知：財神幻湮宮蒐集您的姓名或稱呼、出生年月日與時辰、性別、居住地址、手機、LINE ID、Email、預約項目、7-11 門市與備註。<b>目的</b>是安排遠端解事、開運香粉結緣、聯絡與確認付款。行銷消息須另外勾選才會寄送。</p>
+      <p>資料由本宮於服務所需期間保存與利用。訂購香粉時，收件門市資料會用於 7-11 店到店寄送。除此之外不任意提供給第三人。您可以要求查詢、更正、停止利用或刪除，請<span class="contact-note"></span>。</p>
+      <p>遠端解事與香粉都是民間信仰祈福與結緣，不是醫療行為，不保證具體結果。本頁目前不刷卡，請勿留下信用卡號或密碼。</p>
     </details>
-    <label class="chk"><input type="checkbox" name="consent" required> 我已閱讀並同意上述個資蒐集告知（必填）</label>
-    <label class="chk"><input type="checkbox" name="optin"> 我願意收到幻湮宮的每期賜號與活動消息（選填）</label>
+    <label class="chk"><input type="checkbox" name="consent"> <span>我已閱讀並同意上述個資與服務告知（必填）</span></label>
+    <label class="chk"><input type="checkbox" name="optin"> <span>我願意收到財神幻湮宮的服務與結緣消息（選填）</span></label>
+
+    <div id="estimate" aria-live="polite">
+      <h3>本次試算</h3>
+      <ul id="estLines"></ul>
+      <p id="estEmpty">尚未選擇服務或香粉。</p>
+      <p class="total" id="estTotal">合計 NT$0</p>
+      <p class="pay-note">綠界線上刷卡／付款審核開通中。送出預約後將顯示匯整資訊，並可一鍵跳轉 FB 粉專或 LINE 確認付款與排程。日後正式會員官網與綠界上線後可直接導向。請勿匯款給私人帳號，也請勿在備註留下信用卡號。</p>
+    </div>
+
     <div id="err" class="err" role="alert"></div>
-    <button type="submit" class="btn">開始排盤・恭迎虎爺</button>
+    <button type="submit" class="btn" id="submitBtn">送出預約登記</button>
   </form>
 
-  <section id="result" class="card result" hidden>
-    <h2>虎爺專屬二合號碼</h2>
-    <div class="target">適用期別：今彩539　<b id="drawDate"></b></div>
-    <div class="balls" id="balls"></div>
-    <div class="warn small">僅供娛樂參考，不保證中獎。未滿18歲不得購買彩券。</div>
-    <h3>你的八字</h3>
-    <table class="pillars" id="pillars"></table>
-    <div class="el-bars" id="elbars"></div>
-    <h3>虎爺解盤</h3>
-    <div id="explain" class="explain"></div>
-    <div id="sendStatus" class="send"></div>
-    <button type="button" class="btn ghost" id="again">重新排盤</button>
+  <section id="success" class="block success" hidden>
+    <h2>預約成功！</h2>
+    <p>請核對下面的摘要，按「複製預約摘要」，再到粉專或 LINE 貼給本宮，確認綠界付款與收件。</p>
+    <button type="button" class="btn" id="copyTop">複製預約摘要</button>
+    <p id="copyMsg" class="copy-msg" role="status"></p>
+    <pre id="successSummary"></pre>
+    <button type="button" class="btn ghost" id="copyBottom">再複製一次</button>
+    <a class="btn" id="fbGo" data-link="messenger" target="_blank" rel="noopener">私訊 FB 粉專確認付款</a>
+    <p class="fb-name">粉專名稱：財神幻湮宮-今彩539聚地</p>
+    <a class="textlink" id="fbPage" data-link="fb" target="_blank" rel="noopener">或先打開粉專頁面</a>
+    <a class="btn secondary" id="lineGo" target="_blank" rel="noopener">用 LINE 送出這則摘要</a>
+    <p class="section-note">LINE 會開啟分享，請選擇要傳給本宮的聊天。若按鈕沒有反應，請用上方複製，再自行貼上。</p>
+    <button type="button" class="btn ghost" id="back">返回查看表單（請勿重複送出）</button>
   </section>
 
-  <footer class="card cta">
-    <p>想要每期神明賜號？追蹤「財神幻湮宮-今彩539聚地」，<br>在影片下方留言「<b>恭迎虎爺</b>」</p>
+  <footer class="block footer">
+    <p>追蹤財神幻湮宮，最新服務以粉專公告為準。</p>
     <div class="social">
-      <a id="ig" target="_blank" rel="noopener">Instagram</a>
-      <a id="fb" target="_blank" rel="noopener">粉專「財神幻湮宮-今彩539聚地」</a>
-      <a id="yt" target="_blank" rel="noopener">YouTube</a>
+      <a data-link="fb" href="https://www.facebook.com/1418130474718466" target="_blank" rel="noopener">FB 粉專</a>
+      <a data-link="ig" href="https://www.instagram.com/aura_lightning_zaomu/" target="_blank" rel="noopener">IG<br>@aura_lightning_zaomu</a>
+      <a data-link="yt" href="https://www.youtube.com/@weipin-8278" target="_blank" rel="noopener">YouTube</a>
+      <a data-link="portaly" hidden target="_blank" rel="noopener">Portaly</a>
     </div>
-    <p class="fine">本頁所有號碼與命理內容僅供娛樂參考，不保證中獎，亦不代表任何開獎結果之預測。彩券請理性購買，未滿18歲不得購買彩券。<br>排盤使用 lunar-javascript（MIT）。</p>
+    <p class="fine">本宮服務為民間信仰祈福與結緣，非醫療行為，不保證具體結果。香粉為聞香祈福用品。此地 539 推選僅供娛樂參考，本頁不辦理賜號登記，也不經手信用卡號。</p>
   </footer>
 </div>
+
+<div class="sticky" id="sticky">
+  <div class="sticky-sum">
+    <div class="sticky-label">試算合計</div>
+    <div id="stickyTotal">NT$0</div>
+  </div>
+  <button type="button" class="btn" id="stickyGo">送出預約</button>
+</div>
+
 <script src="config.js"></script>
-<script src="vendor/lunar.js"></script>
-<script src="tiger.js"></script>
+<script src="booking.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
