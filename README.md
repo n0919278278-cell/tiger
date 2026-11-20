@@ -1,72 +1,78 @@
-# 幻湮宮｜虎爺賜號（靜態網頁）
+# 財神幻湮宮｜官方服務網站
 
-手機優先的單頁網站：留言「恭迎虎爺」的人收到連結 → 填生辰與聯絡方式 → 瀏覽器內排八字 → 給兩個「虎爺專屬二合號碼」。
-全部在瀏覽器計算，無 CDN 依賴（lunar-javascript 已放在 `vendor/`）。
+手機優先的單頁官網。訪客打開首頁就能看服務與報價，並登記遠端解事或開運香粉。沒有暗號鎖，也不在頁面上選號。
 
-## 檔案
+此地 539 推選僅供娛樂參考。本宮正式提供的是遠端解事、清理淨化與親製開運香粉結緣。原先的賜號登記已停止。
+
+## 現在的檔案
+
 | 檔案 | 用途 |
 |---|---|
-| index.html / style.css / app.js | 頁面、樣式、互動 |
-| tiger.js | 計算核心（排盤、五行、喜用、選號；瀏覽器與 Node 共用） |
-| config.js | **唯一需要改的設定**：名單網址 ENDPOINT、IG/FB/YT 連結 |
-| data.json | 號碼統計，由 `build_data.py` 從 `../draws.csv` 產生 |
-| build_data.py | `python3 build_data.py` 重建 data.json（每日開獎後跑，含下一期暗號雜湊） |
-| passphrase.py | 依開獎日＋本機鹽決定兩個字暗號；`python3 passphrase.py YYYY-MM-DD` |
-| .secret_salt | 私密鹽（已 gitignore，不可上傳） |
-| vendor/lunar.js | lunar-javascript v1.7.8（MIT，授權檔同目錄） |
-| tiger.jpg / favicon.svg | 虎爺圖（取自 video/assets/tiger_keyart.jpg，480px，約 50KB） |
-| apps_script/Code.gs | Google Apps Script：把名單寫入 Google 試算表 |
-| tests/check_bazi.js | Node 測試：排盤交叉驗證、號碼合法、決定性 |
-| tests/browser_check.js | 無頭 Chrome 測試＋截圖（需 puppeteer-core） |
+| index.html / style.css / app.js | 官網門面、大字排版、表單互動 |
+| booking.js | 報價、防呆、試算表欄位打包（瀏覽器與 Node 共用） |
+| config.js | **唯一要改的設定**：名單網址 `ENDPOINT`、FB／IG／YouTube／Portaly |
+| assets/incense_*.jpg | 香粉實拍（由上傳原圖縮小，已去掉定位資訊） |
+| apps_script/Code.gs | 寫入 Google 試算表。重新部署後會多出專用欄 |
+| publish_data.sh | 預設不再發布舊選號統計，避免例行作業把舊資料推上網站 |
+| tests/booking_check.js | 金額、防呆、欄位長度 |
+| tests/browser_check.js | 無頭 Chrome：手機排版、必填、防呆、成功與失敗畫面 |
 
-## 號碼怎麼算（簡單規則）
-1. **排盤**：lunar-javascript 以國曆生日時間排四柱（節氣換月、立春換年）。台灣夏令時間年份（1945–51、52、53–54、55–59、60–61、74–75、79 的夏季）自動減 1 小時。不確定時辰 → 只排年月日三柱。
-2. **五行計分**：每個天干 1 分、每個地支本氣 1 分，月支（月令）再加 1 分。四柱共 9 分（三柱 7 分）。
-3. **身強／身弱**：日主同類（比劫）＋生我者（印）分數 ≥ 總分一半 → 身強，否則身弱。
-4. **喜用五行**：身強 → 從「我生（食傷）、我剋（財）、剋我（官殺）」中取分數最低的兩個（同分依此順序）；身弱 → 從「印、比劫」取，分數低者為喜（同分印優先）。第一個叫「喜」、第二個叫「用」。
-5. **五行→號碼池**（河圖數尾數）：1、6 水；2、7 火；3、8 木；4、9 金；5、0 土。例：木 → 3、8、13、18、23、28、33、38。
-6. **池內排序**：分數 = 0.4×歷史出現次數（正規化 0–1）＋ 0.6×近 100 期出現次數（正規化）＋ 0.5×個人亂數。個人亂數由「出生年月日時分＋性別＋送出當下時辰（台北時間）＋適用期別」雜湊而來，所以同一人在同一時辰、同一期別結果固定；換時辰或換期別會變。
-7. 喜神池第一名＝第一碼，用神池第一名＝第二碼（兩池尾數不同，必不重複）。
-8. **適用期別**：台北時間週一至週六 20:00 前 → 當天；20:00 後或週日 → 下一個開獎日（跳過週日；若 ≤ data.json 最後開獎日則往後推）。春節停開未處理。
+`tiger.js`、`data.json`、`vendor/lunar.js`、`build_data.py`、`passphrase.py` 是舊版計算留下的檔案，首頁不再載入。不要把它們加回頁面。
 
-範例 1988/07/15 10:30 男 → 戊辰 己未 辛未 癸巳，日主辛金，土 6 分身強，喜木、用水 → 11/15 酉時送出、11/16 期別：**23、31**。
+## 服務與價格（新台幣）
 
+非專屬遠端解事（當日可處理完，請留意近半年內的感受）：
 
-## 每日暗號（簡單版，前端核對）
-開獎後更新的 `data.json` 會帶下一期（最新開獎日的下一個週一至週六）的暗號雜湊，**不含明文**。頁面先問「今日暗號」，對了才進入排盤；輸入會去掉空白，並接受詞庫裡常見的簡體寫法。答對後以 `localStorage` 記住「這一個開獎日」已通過。名單送出時多一個欄位 `passphrase_ok=Y`（不傳送暗號本身）。
+- 基礎清理淨化 NT$300（任何專項開始前必備，不可繞過）
+- 團體祈福 NT$600（運勢穩定上升，成效較慢）
+- 深層強力清理淨化 NT$1,200
+- 強力補運 NT$2,400
+- 五路財神補財庫 NT$3,600
 
-- 產生：`python3 passphrase.py 2026-11-16`（只在本機印明文，給影片用）。鹽檔是 `.secret_salt`，備用複本在 Cursor store。
-- 雜湊：`SHA-256(pepper|日期|暗號)`，pepper 公開寫在 data.json 的 `passphrase.pepper`（目前 `hyy539-passphrase-v1`）。
-- 錯或空白時顯示「請到幻湮宮今日影片，聽虎爺說出今日暗號」，並附 IG／YT／FB 連結。
-- **限制（已告知、採簡單版）：** 詞庫約 50 個詞，雜湊在頁面上，懂程式的人仍可窮舉。若以後要擋這個，改由試算表後端核對即可。
+專屬個人專項（事業、感情、催財、改運；請留意近一個月）：
+
+- 三日持咒秘儀加持 NT$12,000
+- 七日持咒秘儀加持 NT$36,000
+
+持咒開運香粉 NT$888／包（約 30g，香包或袋裝，不含陶香球），7-11 店到店運費 NT$60，首批限量 100 包。成分與用法寫在頁面上。香粉是祈福用品，不是藥品，也不保證結果。
+
+若勾了團體祈福、深層淨化、補運、補財庫、三日或七日，必須再勾「加購基礎清理淨化」或「我近期已在本宮完成過基礎清理淨化」，否則不能送出。
+
+## 名單怎麼寫進舊試算表
+
+現正上線的 Apps Script 仍檢查：`consent` 有值，且 `email` 或 `line` 至少一個。同時會收下 `name`、`birth_date`、`birth_time`、`gender`、`optin`。
+
+頁面另外送出 `line_id`（與 `line` 相同）和 `marketing_opt_in`（與 `optin` 相同，Y/N）。只填手機、沒填 LINE 也沒填 Email 時，手機會寫進 `line`，格式是 `手機:09xxxxxxxx`，這樣舊腳本才收得下來。
+
+新的服務、地址、門市、備註編碼進舊欄位（每格控制在 190 字以內，避免被舊腳本的 200 字上限截斷）：
+
+| 試算表欄 | 鍵 | 內容 |
+|---|---|---|
+| 號碼 | `numbers` | `服務:` 項目、香粉數量、運費、合計 |
+| 適用期別 | `draw_date` 與 `target_period` | `地址:…｜7-11:…｜備註:…` |
+| 八字 | `bazi` | `7-11:` 門市名稱／店號 |
+| 喜用 | `xi_yong` | `備註:` |
+| 日主 | `day_master` | 手機與前置清理（本次加購，或聲明近期已做過） |
+| 時辰 | `shichen` | 出生時辰；不確定則為「不確定」 |
+| 暗號通過 | `passphrase_ok` | 空白 |
+
+只有回應本文是 `{"ok":true}` 才會顯示「預約成功！」，並給完整摘要與複製按鈕，方便貼到粉專「財神幻湮宮-今彩539聚地」或 LINE。綠界刷卡尚未在本頁開通。
+
+把 `apps_script/Code.gs` 貼回 Apps Script 並以**新版本**部署後，原欄位右側會多出服務明細、地址、門市、店號、備註、手機、數量、運費、合計、前置、行銷同意、預約打包。網址不用改。部署前，上面的舊欄位已經夠讀。
 
 ## 本機測試
+
 ```bash
-python3 -m http.server 8080          # 在本資料夾
-node tests/check_bazi.js             # 排盤/號碼測試
-NODE_PATH=/tmp/pt/node_modules node tests/browser_check.js   # 截圖到 screenshots/
+python3 -m http.server 8080
+node tests/booking_check.js
+NODE_PATH=/tmp/pt/node_modules node tests/browser_check.js http://127.0.0.1:8080/
+bash publish_data.sh    # 應印出已轉型並以代碼 0 結束
 ```
 
-## 發佈步驟（給楊維斌）
-### A. Google 試算表名單（免費，約 5 分鐘）
-1. 到 sheets.google.com 新建試算表，命名「虎爺名單」。
-2. 上方選單 **擴充功能 → Apps Script**。刪掉預設內容，貼上 `apps_script/Code.gs` 全部內容，按儲存。
-3. 函式選單選 `testAppend` → 執行 → 依指示授權（會出現「Google 尚未驗證」→ 進階 → 前往（不安全）→ 允許；這是你自己的腳本）。回試算表應看到「名單」工作表多一列測試資料。
-4. 右上 **部署 → 新增部署作業** → 類型選「網頁應用程式」→ 執行身分：**我**；存取權：**所有人** → 部署。
-5. 複製「網頁應用程式網址」（`https://script.google.com/macros/s/…/exec`），貼給 Gray，或填進 `config.js` 的 `ENDPOINT`。
-6. 之後若修改 Code.gs，要用「管理部署作業 → 編輯 → 新版本」才會生效（網址不變）。
+瀏覽器測試會把畫面存到 `screenshots/`。請用手機寬度看：字要大、按鈕要好按、總金額含香粉運費 NT$60。
 
-### B. GitHub Pages 網站（免費）
-1. 到 github.com 註冊帳號（帳號名會出現在網址，例如 `n0919278278-cell` → `https://n0919278278-cell.github.io/tiger/`）。
-2. 右上 **+ → New repository**，名稱 `tiger`，選 **Public**，建立。
-3. 「uploading an existing file」→ 把本資料夾所有檔案（含 vendor、data.json、.nojekyll）拖進去 → Commit。（或給 Gray 一個 GitHub 登入/權杖，由 Gray 推送與每日更新 data.json。）
-4. Repo 的 **Settings → Pages** → Source 選「Deploy from a branch」，Branch 選 `main` / `(root)` → Save。約 1 分鐘後網址生效。
-5. 把網址放進 ManyChat 自動私訊，以及 IG/FB/YT 簡介。可加 `?src=ig` 之類參數，名單「來源」欄會記錄。
+## 發佈
 
-### 每日更新
-開獎後跑 `bash publish_data.sh`（或先 `python3 build_data.py` 再推送）：會重建號碼統計，並寫入下一期暗號雜湊。本機必須有 `.secret_salt`。
+網站仍是 `n0919278278-cell/tiger` 的 GitHub Pages。更新 `main` 後約一分鐘生效。`config.js` 的 `ENDPOINT` 維持原本的 `/exec` 網址。Portaly 若之後有網址，填進 `PORTALY_URL` 即可，空白時頁尾不顯示。
 
-## 合規
-- 頁面頂部、結果區、頁尾都顯示「僅供娛樂參考，不保證中獎。未滿18歲不得購買彩券。」
-- 個資告知：目的、保存與利用者、不提供第三方、可請求查詢/更正/刪除；必勾同意，行銷訊息另外選填。
-- 刪除請求：在試算表刪除該列即可。
+社群：FB 粉專「財神幻湮宮-今彩539聚地」、IG @aura_lightning_zaomu、YouTube @weipin-8278。

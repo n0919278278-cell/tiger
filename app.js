@@ -1,209 +1,331 @@
-/* 幻湮宮｜虎爺賜號 — 頁面互動 */
+/* 財神幻湮宮｜官網門面互動 */
 (function () {
-  var C = window.TIGER_CONFIG || {}, T = window.TigerCalc(window), DATA = null;
-  var f = document.getElementById('f'), $ = function (id) { return document.getElementById(id); };
-  var nowT = T.taipeiNow();
-  var unlockedDate = '';
-  var S2T = { '纳': '納', '宝': '寶', '运': '運', '开': '開', '鸿': '鴻', '寿': '壽', '贵': '貴', '兴': '興', '气': '氣', '发': '發', '临': '臨', '庆': '慶', '赐': '賜', '禄': '祿', '来': '來', '丰': '豐', '乐': '樂', '泽': '澤', '顺': '順', '万': '萬', '余': '餘', '满': '滿', '达': '達', '财': '財', '进': '進' };
-  function opts(sel, from, to, fmt, sel0) {
-    for (var i = from; from <= to ? i <= to : i >= to; from <= to ? i++ : i--) {
-      var o = document.createElement('option'); o.value = i; o.textContent = fmt(i); if (i === sel0) o.selected = true; sel.appendChild(o);
-    }
+  var C = window.PALACE_CONFIG || window.TIGER_CONFIG || {};
+  var B = window.PalaceBooking;
+  var f = document.getElementById('f');
+  var $ = function (id) { return document.getElementById(id); };
+  var err = $('err');
+  var qty = 0;
+  var lock = false;
+  var sending = false;
+  var preOpened = false;
+  var summaryText = '';
+
+  function field(name) { return f.elements[name]; }
+  function svc(id) { return document.querySelector('.svc-input[data-id="' + id + '"]'); }
+
+  function roc(y) {
+    if (y >= 1912) return '民國' + (y - 1911) + '年（' + y + '）';
+    return '民國前' + (1912 - y) + '年（' + y + '）';
   }
-  var p2 = function (n) { return (n < 10 ? '0' : '') + n; };
-  opts(f.by, nowT.y, 1920, function (i) { return i + ' 年（民國' + (i > 1911 ? i - 1911 : '前' + (1912 - i)) + '）'; });
-  opts(f.bm, 1, 12, function (i) { return i + ' 月'; });
+  function addOpt(sel, value, text) {
+    var o = document.createElement('option');
+    o.value = String(value);
+    o.textContent = text;
+    sel.appendChild(o);
+  }
+  var nowY = B.taipeiParts().y;
+  for (var y = nowY; y >= 1912; y--) addOpt(field('by'), y, roc(y));
+  for (var m = 1; m <= 12; m++) addOpt(field('bm'), m, m + '月');
+  B.SHICHEN.forEach(function (s) { addOpt(field('shichen'), s.id, s.label); });
   function fillDays() {
-    var y = +f.by.value || 2000, m = +f.bm.value || 1, keep = +f.bd.value, dim = new Date(y, m, 0).getDate();
-    f.bd.length = 1; opts(f.bd, 1, dim, function (i) { return i + ' 日'; }, keep && keep <= dim ? keep : 0);
+    var yy = parseInt(field('by').value, 10) || nowY;
+    var mm = parseInt(field('bm').value, 10) || 1;
+    var keep = field('bd').value;
+    var dim = new Date(yy, mm, 0).getDate();
+    while (field('bd').options.length > 1) field('bd').remove(1);
+    for (var d = 1; d <= dim; d++) addOpt(field('bd'), d, d + '日');
+    if (keep && parseInt(keep, 10) <= dim) field('bd').value = keep;
   }
-  fillDays(); f.by.onchange = f.bm.onchange = fillDays;
-  opts(f.bh, 0, 23, function (i) { return p2(i) + ' 時'; });
-  opts(f.bmi, 0, 59, function (i) { return p2(i) + ' 分'; });
-  f.unknownTime.onchange = function () { f.bh.disabled = f.bmi.disabled = this.checked; };
-  document.querySelector('.contact-note').textContent = C.CONTACT_NOTE || '私訊財神幻湮宮-今彩539聚地';
-  ['ig', 'fb', 'yt'].forEach(function (k) {
-    var u = C[k.toUpperCase() + '_URL'];
-    [k, 'gate-' + k].forEach(function (id) {
-      var a = $(id);
-      if (!a) return;
-      if (u) a.href = u; else a.hidden = true;
+  fillDays();
+  field('by').addEventListener('change', fillDays);
+  field('bm').addEventListener('change', fillDays);
+
+  var contact = document.querySelector('.contact-note');
+  if (contact) contact.textContent = C.CONTACT_NOTE || '私訊粉專「財神幻湮宮-今彩539聚地」';
+
+  function applyLinks() {
+    var map = {
+      fb: C.FB_URL,
+      ig: C.IG_URL,
+      yt: C.YT_URL,
+      portaly: C.PORTALY_URL,
+      messenger: C.MESSENGER_URL || C.FB_URL
+    };
+    Object.keys(map).forEach(function (key) {
+      var url = map[key];
+      document.querySelectorAll('[data-link="' + key + '"]').forEach(function (a) {
+        if (url) { a.href = url; a.hidden = false; }
+        else a.hidden = true;
+      });
+    });
+  }
+  applyLinks();
+
+  function readInput() {
+    var flags = {};
+    document.querySelectorAll('.svc-input').forEach(function (el) {
+      flags[el.getAttribute('data-id')] = el.checked;
+    });
+    var pre = '';
+    if ($('preDone').checked) pre = 'done';
+    else if ($('preAddon').checked) pre = 'addon';
+    var genderEl = f.querySelector('input[name=gender]:checked');
+    return {
+      name: field('name').value,
+      y: field('by').value,
+      m: field('bm').value,
+      d: field('bd').value,
+      shichenId: field('shichen').value,
+      timeUnknown: field('unknownTime').checked,
+      gender: genderEl ? genderEl.value : '',
+      address: field('address').value,
+      phone: field('phone').value,
+      line: field('line').value,
+      email: field('email').value,
+      storeName: field('store_name').value,
+      storeCode: field('store_code').value,
+      note: field('note').value,
+      consent: field('consent').checked,
+      marketing: field('optin').checked,
+      flags: flags,
+      incenseQty: qty,
+      pre: pre,
+      honeypot: field('hp_zx91').value,
+      source: location.search.replace(/^\?/, ''),
+      ua: navigator.userAgent
+    };
+  }
+
+  function paint() {
+    document.querySelectorAll('.svc').forEach(function (lab) {
+      lab.classList.toggle('on', lab.querySelector('input').checked);
+    });
+    document.querySelectorAll('.seg label').forEach(function (lab) {
+      lab.classList.toggle('on', lab.querySelector('input').checked);
+    });
+  }
+
+  function refresh() {
+    var input = readInput();
+    var q = B.quote(input);
+    var raw = B.rawFlags(input);
+    var lines = $('estLines');
+    lines.textContent = '';
+    q.items.forEach(function (it) {
+      var li = document.createElement('li');
+      var extra = it.qty > 1 ? ' × ' + it.qty : '';
+      li.textContent = it.name + extra + '　' + B.ntd(it.amount);
+      lines.appendChild(li);
+    });
+    $('estEmpty').hidden = q.items.length > 0;
+    $('estTotal').textContent = '合計 ' + B.ntd(q.total);
+    $('stickyTotal').textContent = B.ntd(q.total);
+    $('storeBlock').hidden = q.qty === 0;
+    $('incenseQty').textContent = String(q.qty);
+    var need = B.needsBase(raw);
+    var box = $('preBox');
+    box.hidden = !need;
+    if (need) {
+      var names = B.SERVICES.filter(function (s) { return s.needsBase && raw[s.id]; }).map(function (s) { return s.name; });
+      $('preLead').textContent = '您選了「' + names.join('、') + '」。這些項目開始前，必須先完成基礎清理淨化，不可繞過。請勾選下面其中一項，才能送出。';
+      if (input.pre === 'done') $('preState').textContent = '已確認：您近期已在本宮完成基礎清理淨化，本次不加收 NT$300。';
+      else if (q.flags.base) $('preState').textContent = '已確認：本次會一併安排基礎清理淨化（NT$300）。';
+      else $('preState').textContent = '尚未確認。未勾選其中一項就不能送出。';
+      box.classList.toggle('ok', input.pre === 'done' || !!q.flags.base);
+      if (!preOpened) {
+        preOpened = true;
+        box.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      }
+    }
+    paint();
+  }
+
+  function syncFromBase() {
+    if (lock) return;
+    lock = true;
+    if (svc('base').checked) {
+      $('preDone').checked = false;
+      $('preAddon').checked = true;
+    } else if (!$('preDone').checked) {
+      $('preAddon').checked = false;
+    }
+    lock = false;
+    refresh();
+  }
+
+  document.querySelectorAll('.svc-input').forEach(function (el) {
+    el.addEventListener('change', function () {
+      if (!sending) err.textContent = '';
+      if (el.getAttribute('data-id') === 'base') syncFromBase();
+      else refresh();
     });
   });
+  $('preAddon').addEventListener('change', function () {
+    if (lock) return;
+    lock = true;
+    if (this.checked) {
+      $('preDone').checked = false;
+      svc('base').checked = true;
+    } else svc('base').checked = false;
+    lock = false;
+    if (!sending) err.textContent = '';
+    refresh();
+  });
+  $('preDone').addEventListener('change', function () {
+    if (lock) return;
+    lock = true;
+    if (this.checked) {
+      $('preAddon').checked = false;
+      svc('base').checked = false;
+    }
+    lock = false;
+    if (!sending) err.textContent = '';
+    refresh();
+  });
+  field('unknownTime').addEventListener('change', function () {
+    field('shichen').disabled = this.checked;
+    if (this.checked) field('shichen').value = '';
+  });
+  f.addEventListener('input', function () { if (!sending) err.textContent = ''; });
+  f.addEventListener('change', refresh);
 
-  function normPw(s) {
-    return String(s || '').replace(/\s+/g, '').split('').map(function (c) { return S2T[c] || c; }).join('');
+  function setQty(n) {
+    qty = Math.max(0, Math.min(B.INCENSE_MAX, n));
+    if (!sending) err.textContent = '';
+    refresh();
   }
-  function sha256hex(s) {
-    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)).then(function (buf) {
-      return Array.from(new Uint8Array(buf)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+  $('qtyMinus').addEventListener('click', function () { setQty(qty - 1); });
+  $('qtyPlus').addEventListener('click', function () { setQty(qty + 1); });
+
+  function showErrors(list) {
+    err.textContent = '';
+    if (!list || !list.length) return;
+    var p = document.createElement('p');
+    p.textContent = '請先補齊下面幾項：';
+    var ul = document.createElement('ul');
+    list.forEach(function (msg) {
+      var li = document.createElement('li');
+      li.textContent = msg;
+      ul.appendChild(li);
     });
-  }
-  function lsKey(d) { return 'tiger_passphrase_ok:' + d; }
-  function pwSpec() { return DATA && DATA.passphrase && DATA.passphrase.date && DATA.passphrase.hash ? DATA.passphrase : null; }
-  function showForm() { $('gate').hidden = true; f.hidden = false; }
-  function showGate() { $('gate').hidden = false; f.hidden = true; }
-  function gateMsg(msg) { $('gateErr').textContent = msg || ''; }
-
-  var dataReady = fetch('data.json', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) {
-    DATA = d;
-    var sp = pwSpec();
-    if (!sp) { showForm(); return d; }
-    if (localStorage.getItem(lsKey(sp.date)) === '1') { unlockedDate = sp.date; showForm(); }
-    else showGate();
-    return d;
-  }).catch(function (e) { console.error(e); showForm(); throw e; });
-
-  function rejectGate() {
-    gateMsg('請到幻湮宮今日影片，聽虎爺說出今日暗號');
-    var help = $('gateHelp');
-    if (help) help.scrollIntoView({ block: 'center', behavior: 'smooth' });
-  }
-  function acceptGate(date) {
-    unlockedDate = date;
-    try { localStorage.setItem(lsKey(date), '1'); } catch (e) {}
-    gateMsg('');
-    showForm();
-    f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    err.appendChild(p);
+    err.appendChild(ul);
+    err.scrollIntoView({ block: 'center', behavior: 'smooth' });
   }
 
-  $('gateGo').addEventListener('click', function () {
-    var sp = pwSpec(), raw = $('passphrase').value, word = normPw(raw);
-    gateMsg('');
-    if (!sp) { showForm(); return; }
-    if (!word) { rejectGate(); return; }
-    var btn = $('gateGo'); btn.disabled = true;
-    var msg = (sp.pepper || 'hyy539-passphrase-v1') + '|' + sp.date + '|' + word;
-    sha256hex(msg).then(function (h) {
-      if (h === String(sp.hash).toLowerCase()) acceptGate(sp.date);
-      else rejectGate();
-    }).catch(function () { rejectGate(); })
-      .then(function () { btn.disabled = false; });
-  });
-  $('passphrase').addEventListener('keydown', function (ev) {
-    if (ev.key === 'Enter') { ev.preventDefault(); $('gateGo').click(); }
-  });
+  function setBusy(on) {
+    sending = on;
+    $('submitBtn').disabled = on;
+    $('stickyGo').disabled = on;
+    $('submitBtn').textContent = on ? '送出中，請稍候…' : '送出預約登記';
+  }
 
-  function err(msg) { $('err').textContent = msg; if (msg) $('err').scrollIntoView({ block: 'center', behavior: 'smooth' }); }
-  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return '&#' + c.charCodeAt(0) + ';'; }); }
+  function showOk(built) {
+    summaryText = built.summary;
+    $('successSummary').textContent = built.summary;
+    $('copyMsg').textContent = '';
+    var lineUrl = 'https://line.me/R/msg/text/?' + encodeURIComponent(built.summary);
+    $('lineGo').href = lineUrl;
+    f.hidden = true;
+    $('success').hidden = false;
+    $('sticky').hidden = true;
+    $('success').scrollIntoView({ block: 'start', behavior: 'smooth' });
+    setBusy(false);
+  }
 
-  f.addEventListener('submit', function (ev) {
-    ev.preventDefault(); err('');
-    var sp = pwSpec();
-    if (sp && unlockedDate !== sp.date) { showGate(); rejectGate(); return; }
-    var name = f.nick.value.trim(), email = f.email.value.trim(), line = f.line.value.trim();
-    var g = (f.querySelector('input[name=gender]:checked') || {}).value, unk = f.unknownTime.checked;
-    if (!name) return err('請填寫暱稱');
-    if (!f.by.value || !f.bm.value || !f.bd.value) return err('請選擇完整的出生日期');
-    if (!unk && (f.bh.value === '' || f.bmi.value === '')) return err('請選擇出生時間，或勾選「不確定時辰」');
-    if (!g) return err('請選擇性別');
-    if (!email && !line) return err('Email 與 LINE ID 請至少填一項');
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return err('Email 格式不正確');
-    if (!f.consent.checked) return err('請勾選同意個資蒐集告知');
-    var birth = { y: +f.by.value, m: +f.bm.value, d: +f.bd.value, h: unk ? null : +f.bh.value, mi: unk ? null : +f.bmi.value, timeKnown: !unk, gender: g };
-    var btn = f.querySelector('button[type=submit]'); btn.disabled = true; btn.textContent = '虎爺降駕中…';
-    dataReady.then(function (data) {
-      var r = T.compute(birth, data);
-      render(r, name);
-      send(r, { name: name, email: email, line: line, optin: f.optin.checked, birth: birth, hp: (f.hp_zx91 && f.hp_zx91.value) || '' });
-    }).catch(function (e) { console.error(e); err('排盤資料載入失敗，請重新整理頁面再試一次'); })
-      .then(function () { btn.disabled = false; btn.textContent = '開始排盤・恭迎虎爺'; });
-  });
-
-  function render(r, name) {
-    var a = r.an, p = r.bazi.pillars;
-    $('drawDate').textContent = r.draw.label;
-    $('balls').innerHTML = r.picks.map(function (pk) {
-      return '<div class="ball"><span class="n">' + p2(pk.best.n) + '</span><span class="e">' + pk.el + '</span></div>';
-    }).join('');
-    var cols = [['年柱', p.year], ['月柱', p.month], ['日柱', p.day], ['時柱', p.hour]];
-    $('pillars').innerHTML = '<tr>' + cols.map(function (c) { return '<th>' + c[0] + '</th>'; }).join('') + '</tr>' +
-      '<tr>' + cols.map(function (c, i) { return '<td' + (i === 2 ? ' class="dm"' : '') + '>' + (c[1] ? c[1][0] : '－') + '</td>'; }).join('') + '</tr>' +
-      '<tr>' + cols.map(function (c, i) { return '<td' + (i === 2 ? ' class="dm"' : '') + '>' + (c[1] ? c[1][1] : '－') + '</td>'; }).join('') + '</tr>' +
-      '<tr>' + cols.map(function (c) { return '<td class="el">' + (c[1] ? T.STEM_EL[c[1][0]] + T.BR_EL[c[1][1]] : '時辰不詳') + '</td>'; }).join('') + '</tr>';
-    var mx = Math.max.apply(null, ['木', '火', '土', '金', '水'].map(function (e) { return a.count[e]; })) || 1;
-    $('elbars').innerHTML = ['木', '火', '土', '金', '水'].map(function (e) {
-      var xy = e === a.xi.e || e === a.yong.e;
-      return '<div class="bar' + (xy ? ' xy' : '') + '"><span>' + e + '</span><i style="width:' + Math.max(4, a.count[e] / mx * 70) + '%"></i>' + a.count[e] + (xy ? '　★喜用' : '') + '</div>';
-    }).join('');
-    var tails = function (e) { return T.TAIL[e].join('、'); };
-    var nm = esc(name);
-    var html = [];
-    html.push('<p><b>' + nm + '</b>，你的日主為「<b>' + a.dayMaster + a.dmEl + '</b>」（' + (r.bazi.pillars.hour ? '' : '時辰不詳，以三柱論；') +
-      '月令' + p.month[1] + '屬' + T.BR_EL[p.month[1]] + '）。命盤中幫身的' + a.rel.比劫 + '（比劫）與' + a.rel.印 + '（印）共 ' + a.support + ' 分，佔全盤 ' + a.total + ' 分的' +
-      (a.strong ? '一半以上，屬<b>身強</b>，宜洩、宜耗，' : '不到一半，屬<b>身弱</b>，宜生、宜扶，') + '故取 <b>' + a.xi.e + '</b>（' + a.xi.k + '）為喜、<b>' + a.yong.e + '</b>（' + a.yong.k + '）為用。</p>');
-    html.push('<p>依河圖數，' + a.xi.e + '對應尾數 ' + tails(a.xi.e) + '，' + a.yong.e + '對應尾數 ' + tails(a.yong.e) + '。虎爺在這兩組號碼中，參考今彩539自 ' +
-      DATA.first_draw.slice(0, 4) + '年以來共 ' + DATA.total_draws + ' 期開獎紀錄的冷熱，並以你恭迎虎爺的此刻「<b>' + r.shichen.slice(0, 2) + '</b>」（' + r.nowGz + '時，屬' + r.shichenEl + '）落定：</p>');
-    r.picks.forEach(function (pk) {
-      html.push('<p>◆ <b>' + p2(pk.best.n) + '</b>：尾數 ' + (pk.best.n % 10) + ' 屬' + pk.el + '，合你的' + (pk.el === a.xi.e ? '喜神' : '用神') +
-        '；歷史開出 ' + pk.best.all + ' 次（平均約 ' + r.avgAll + '）、近 ' + DATA.recent_window + ' 期開出 ' + pk.best.recent + ' 次（平均約 ' + r.avgRecent + '）。</p>');
-    });
-    if (r.shichenEl === a.xi.e || r.shichenEl === a.yong.e) html.push('<p>此刻' + r.shichen.slice(0, 2) + '屬' + r.shichenEl + '，正合你的喜用，虎爺加持。</p>');
-    if (r.bazi.dst) html.push('<p class="fine">※ 你的生日落在台灣夏令時間期間，已自動將出生時間減 1 小時排盤。</p>');
-    html.push('<p class="fine">※ 同一組生辰在同一時辰、同一期別所得號碼相同；換時辰或換期別，虎爺會重新落定。號碼為命理與統計的娛樂解讀，彩券開獎為隨機，<b>不保證中獎</b>。</p>');
-    $('explain').innerHTML = html.join('');
-    f.hidden = true; $('result').hidden = false;
-    $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  function showFail() {
+    setBusy(false);
+    var fb = C.FB_NAME || '財神幻湮宮-今彩539聚地';
+    showErrors(['預約沒有送出成功，請再按一次。若仍失敗，請私訊 FB 粉專「' + fb + '」，我們會幫您登記。']);
   }
 
   var sendTimer = null;
-  function send(r, u) {
-    var st = $('sendStatus');
-    if (u.hp) { st.className = 'send'; st.textContent = ''; return; } // 機器人
-    if (!C.ENDPOINT) { st.className = 'send'; st.textContent = ''; return; }
-    var payload = {
-      ts: r.now.iso, name: u.name, email: u.email, line: u.line, optin: u.optin ? 'Y' : 'N', consent: 'Y',
-      birth_date: u.birth.y + '-' + (u.birth.m < 10 ? '0' : '') + u.birth.m + '-' + (u.birth.d < 10 ? '0' : '') + u.birth.d,
-      birth_time: u.birth.timeKnown ? (u.birth.h < 10 ? '0' : '') + u.birth.h + ':' + (u.birth.mi < 10 ? '0' : '') + u.birth.mi : '不確定',
-      gender: u.birth.gender, bazi: [r.bazi.pillars.year, r.bazi.pillars.month, r.bazi.pillars.day, r.bazi.pillars.hour || '--'].join(' '),
-      day_master: r.an.dayMaster + r.an.dmEl, xi_yong: r.an.xi.e + r.an.yong.e, numbers: r.numbers.map(p2).join(','),
-      draw_date: r.draw.iso, shichen: r.shichenBranch, source: location.search.slice(1, 120), ua: navigator.userAgent.slice(0, 160),
-      passphrase_ok: unlockedDate ? 'Y' : ''
-    };
-    function showOk() {
-      st.className = 'send ok';
-      st.textContent = '已登記虎爺名冊 ✔';
-    }
-    function showFail() {
-      st.className = 'send fail';
-      st.textContent = '';
-      var p = document.createElement('p');
-      p.style.margin = '0 0 8px';
-      p.appendChild(document.createTextNode('名冊登記失敗，請再試一次。若仍不行，請'));
-      var a = document.createElement('a');
-      a.href = C.FB_URL || 'https://www.facebook.com/1418130474718466';
-      a.target = '_blank';
-      a.rel = 'noopener';
-      a.textContent = '私訊 Facebook 粉專「財神幻湮宮-今彩539聚地」';
-      p.appendChild(a);
-      p.appendChild(document.createTextNode('，我們會幫你補登記。號碼仍可先記下。'));
-      st.appendChild(p);
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'btn ghost';
-      btn.id = 'sendRetry';
-      btn.textContent = '再試一次';
-      btn.onclick = function () { send(r, u); };
-      st.appendChild(btn);
-    }
-    st.className = 'send';
-    st.textContent = '正在為你登記虎爺名冊…';
-    if (sendTimer) { clearTimeout(sendTimer); sendTimer = null; }
+  function send(built) {
+    if (built.payload && field('hp_zx91').value) { showFail(); return; }
+    if (!C.ENDPOINT) { showFail(); return; }
+    setBusy(true);
+    if (sendTimer) clearTimeout(sendTimer);
     var ctrl = window.AbortController ? new AbortController() : null;
     sendTimer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 20000);
-    // text/plain + 一般 fetch（非 no-cors）：Apps Script 會 302 到可讀 JSON；只在 {"ok":true} 時顯示已登記
-    fetch(C.ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), signal: ctrl && ctrl.signal, redirect: 'follow' })
-      .then(function (res) {
-        return res.text().then(function (t) {
-          var data = null;
-          try { data = JSON.parse(t); } catch (e) {}
-          if (res.ok && data && data.ok === true) showOk();
-          else showFail();
-        });
-      })
-      .catch(function () { showFail(); })
+    fetch(C.ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(built.payload),
+      redirect: 'follow',
+      signal: ctrl ? ctrl.signal : undefined
+    }).then(function (res) {
+      return res.text().then(function (t) {
+        var data = null;
+        try { data = JSON.parse(t); } catch (e) {}
+        if (res.ok && data && data.ok === true) showOk(built);
+        else showFail();
+      });
+    }).catch(function () { showFail(); })
       .then(function () { if (sendTimer) { clearTimeout(sendTimer); sendTimer = null; } });
   }
 
-  $('again').onclick = function () { $('result').hidden = true; f.hidden = false; f.scrollIntoView({ behavior: 'smooth' }); };
+  f.addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    if (sending) return;
+    var input = readInput();
+    var check = B.validate(input);
+    if (check.bot) return showErrors(['無法送出，請改私訊粉專，我們會協助您登記。']);
+    if (!check.ok) return showErrors(check.errors);
+    var built = B.build(input);
+    if (built.total >= 12000) {
+      var sure = window.confirm('本次合計 ' + B.ntd(built.total) + '。金額較高，確定送出預約登記嗎？');
+      if (!sure) return;
+    }
+    send(built);
+  });
+
+  $('stickyGo').addEventListener('click', function () {
+    if (!$('success').hidden) return;
+    if (f.requestSubmit) f.requestSubmit();
+    else f.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+  });
+
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+  function selectSummary() {
+    var pre = $('successSummary');
+    var sel = window.getSelection();
+    var range = document.createRange();
+    range.selectNodeContents(pre);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+  function copySummary() {
+    var text = $('successSummary').textContent || summaryText;
+    selectSummary();
+    var done = function () { $('copyMsg').textContent = '已複製，可以貼到 FB 或 LINE。'; };
+    var fail = function () { $('copyMsg').textContent = '按鈕沒有複製成功，摘要已選取，請長按後選擇複製。'; };
+    var afterFallback = function () { fallbackCopy(text) ? done() : fail(); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, afterFallback);
+    } else afterFallback();
+  }
+  $('copyTop').addEventListener('click', copySummary);
+  $('copyBottom').addEventListener('click', copySummary);
+
+  $('back').addEventListener('click', function () {
+    $('success').hidden = true;
+    f.hidden = false;
+    $('sticky').hidden = false;
+    f.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  });
+
+  refresh();
 })();
